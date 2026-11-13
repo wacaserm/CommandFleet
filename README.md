@@ -57,8 +57,6 @@ I tested CommandFleet on localhost with one server and two clients in separate
 PowerShell terminals. Both clients connected, and the server recorded at least
 three accepted turns as play alternated between them.
 
-- [Gameplay screenshot](evidence\Screenshot 2026-11-13 003229.png)
-- [Console log](gameplay_log.txt)
-- [DNS failure screenshot](evidence/Screenshot 2026-11-13 003345.png): The client
-  printed Cisco DNS troubleshooting guidance and exited with code `1`
-  without a traceback.
+1. [Gameplay screenshot](evidence/Screenshot%202026-11-13%20003229.png)
+2. [Console log](https://github.com/wacaserm/CommandFleet/blob/main/gameplay_log.txt)
+3. [DNS error handling screenshot](evidence/Screenshot%202026-11-13%20003345.png): The client printed Cisco DNS troubleshooting guidance and exited with code `1` without a traceback.
