@@ -25,7 +25,7 @@ sequenceDiagram
     S->>S: Validate schema, game state, active turn, and coordinate
     alt Malformed, out of range, or already attacked
         S-->>P1: ERROR with applicable code
-        Note over S: Player_1 keeps the turn; no state or score changes
+        Note over S: Player_1 keeps the turn, no state or score changes
     else Legal active-player move
         S->>S: Record attack and calculate hit, miss, or sunk ship
         S->>S: Check whether opponent fleet is fully sunk
@@ -51,7 +51,7 @@ sequenceDiagram
             end
             S->>S: Drain pending final messages through write-ready events
             S->>S: CLEANUP closes match sockets and clears round state
-            Note over S: Preserve leaderboard and listener; return to WAITING_FOR_PLAYERS
+            Note over S: Preserve leaderboard and listene, return to WAITING_FOR_PLAYERS
         end
     end
 ```
@@ -60,7 +60,7 @@ The server checks each request against the current state when that request is di
 
 If the attack wins the round, there is no next turn. The server awards one point to the winner, records the win/loss, and includes those totals in both final `STATE_UPDATE` and `GAME_OVER`. Each connection's FIFO output queue preserves that order. On the client, receiving `active_player=null` prevents another attack while `GAME_OVER` is being delivered.
 
-The arrows represent logical message order. The `par` branches show independent delivery on the two sockets; they do not mean that server callbacks run in multiple threads. Actual writes run only when the corresponding socket is writable, and messages on different connections can arrive at different times. Both recipient-specific messages are queued from the same committed state before another move handler executes. That is the synchronization guarantee; the server does not block waiting for one client's display or acknowledgement.
+The arrows represent logical message order. The `par` branches show independent delivery on the two sockets, they do not mean that server callbacks run in multiple threads. Actual writes run only when the corresponding socket is writable, and messages on different connections can arrive at different times. Both recipient-specific messages are queued from the same committed state before another move handler executes. That is the synchronization guarantee, the server does not block waiting for one client's display or acknowledgement.
 
 ## 2. Mid-game disconnect and scoring
 
@@ -80,7 +80,7 @@ sequenceDiagram
     S->>S: Record P1 forfeit win and P2 loss exactly once
     S-->>P1: GAME_OVER forfeit, winner Player_1, final state and scores
     S->>S: Flush reachable client's final output or reach close deadline
-    S->>S: Unregister and close match sockets; clear round state
+    S->>S: Unregister and close match sockets, clear round state
     Note over S: Keep leaderboard and listener for the next match
 ```
 
