@@ -50,3 +50,15 @@ The client resolves whatever name is passed to `-i`. For Sprint 4, use
 
 The leaderboard lives in memory. It retains up to 64 unique aliases per
 server process to keep score snapshots within the 8,192-byte frame limit.
+
+## Sprint 3 gameplay evidence
+
+I tested CommandFleet on localhost with one server and two clients in separate
+PowerShell terminals. Both clients connected, and the server recorded at least
+three accepted turns as play alternated between them.
+
+- [Gameplay screenshot](evidence\Screenshot 2026-11-13 003229.png)
+- [Console log](gameplay_log.txt)
+- [DNS failure screenshot](evidence/Screenshot 2026-11-13 003345.png): The client
+  printed Cisco DNS troubleshooting guidance and exited with code `1`
+  without a traceback.
