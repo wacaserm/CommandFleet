@@ -1,33 +1,52 @@
 # CommandFleet
 
-CommandFleet is an in-progress, two-player naval strategy game for the command line. I am designing it for my CS 457 Computer Networks project to practice TCP application protocols, server-managed game state, and deployment across a simulated network.
+A two-player naval strategy game for CS 457 Computer Networks. The server
+places five ships per player, tracks attacks and turns, and keeps the opponent's
+unhit ships hidden. Sprint 3 runs on localhost using Python 3.10+ and the
+standard library.
 
-## Current status
+## Play locally
 
-**Sprint 1: protocol and server state machine designed.** The repository currently contains design documents and a minimal Python entry point. The playable server and client are planned work; the game cannot be played yet.
+Run these commands from the repository root in three separate terminals,
+starting with the server. On Windows, `py -3` can replace `python3`.
 
-## Design
-
-- Two players connect to one Python server over TCP. The server manages a single match at a time and can accept a new match after cleanup.
-- Messages are UTF-8 JSON objects separated by newline bytes. The receiver must handle messages split across reads or combined in one read.
-- The server owns fleet placement, turn order, move validation, and results. Each player receives a view that hides the opponent's unhit ships.
-- The planned game uses two 10 × 10 boards and five randomly placed ships per player. A player wins by hitting all 17 cells of the opposing fleet.
-- The state machine distinguishes completed wins, forfeits after play begins, and abandoned lobbies. Rejected moves do not consume a turn.
-
-## Project documents
-
-| Document | What it covers |
+| Terminal | Command |
 | --- | --- |
-| [Protocol blueprint](protocol_blueprint.md) | TCP framing, message schemas, validation, recipient-specific board views, and disconnect handling |
-| [Server state machine](fsm_specification.md) | State transitions, move handling, cleanup, and invariants |
-| [AI implementation plan](ai_prompts.md) | Planned implementation prompts and verification steps |
-| [Statement of work](sow_template.md) | Course scope and future sprint sections |
+| Server | `python3 server.py -p 45700` |
+| First client | `python3 client.py -i localhost -p 45700 --alias Madison` |
+| Second client | `python3 client.py -i localhost -p 45700 --alias Alex` |
 
-## Next steps
+When the client says **Your Turn**, enter a row and column from 0 through 9,
+such as `3 7`. Both hits and misses use a turn. The game ends when all 17
+opposing ship cells have been hit. Type `quit` to leave; leaving during a
+match gives the other player a forfeit win. To start another match, launch
+both clients again while the server keeps running. Ctrl+C stops the server.
 
-1. Implement and test JSON-line framing and message validation.
-2. Implement fleet placement, attacks, turn tracking, and private board views.
-3. Connect the server and two clients for a complete local game.
-4. Deploy and inspect the game in the planned CML network topology.
+Use `python3 server.py -h` and `python3 client.py -h` for help. The
+`--alias` flag is optional; omit it to get an interactive prompt.
+The client resolves whatever name is passed to `-i`. For Sprint 4, use
+`-i server.wacaser.edu` once that record is configured in CML.
 
-**Stack:** Python, TCP sockets, JSON, Cisco Modeling Labs (planned deployment).
+## Verify Sprint 3
+
+- [Gameplay log](gameplay_log.txt) contains real output from one server and
+  two CLI clients playing four accepted turns. It also shows the forfeit
+  result and the room reopening.
+- Local socket checks covered split and combined frames, oversized and
+  malformed messages, rejected moves, hidden fleets, a 33-turn fleet
+  victory, an EOF forfeit, and leaderboard totals surviving a room reset.
+- To exercise DNS failure, run
+  `python3 client.py -i commandfleet-test.invalid -p 45700`. The client
+  prints Cisco DNS configuration guidance and exits with status 1.
+
+## Design documents
+
+- [Protocol blueprint](protocol_blueprint.md) and
+  [server state machine](fsm_specification.md)
+- [Concurrency design](concurrency_design.md) and
+  [sequence diagrams](sequence_diagram.md)
+- [AI implementation plan](ai_prompts.md) and
+  [statement of work](sow_template.md)
+
+The leaderboard lives in memory. It retains up to 64 unique aliases per
+server process to keep score snapshots within the 8,192-byte frame limit.
